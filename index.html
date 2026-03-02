@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weak Signals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,200;1,9..144,300&family=IBM+Plex+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    :root {
+      --bg:       #FFFFFF;
+      --ink:      #1C1A16;
+      --muted:    #888077;
+      --line:     rgba(0,0,0,.12);
+      --serif:    'Fraunces', serif;
+      --mono:     'IBM Plex Mono', monospace;
+      --left:     220px;
+      --right:    400px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 300;
+      line-height: 1.9;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      align-items: stretch;
+      height: 100%;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    a:hover { opacity: .5; }
+
+    /* ── Left sidebar ── */
+    .sidebar {
+      width: var(--left);
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 2rem 1.6rem;
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: var(--bg);
+      overflow-y: auto;
+    }
+    .site-name {
+      font-size: .72rem;
+      font-weight: 400;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0;
+    }
+    .sidebar nav { display: flex; flex-direction: column; gap: .05rem; }
+    .sidebar nav a {
+      font-size: .66rem;
+      letter-spacing: .04em;
+      color: var(--muted);
+      padding: .22rem 0;
+      transition: color .15s;
+    }
+    .sidebar nav a:hover,
+    .sidebar nav a.active { color: var(--ink); opacity: 1; }
+    .sidebar-bottom {
+      font-size: .58rem;
+      color: var(--muted);
+      line-height: 2;
+    }
+    .sidebar-bottom a { color: var(--muted); }
+
+    /* ── Main (scrollable) ── */
+    .main {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      height: 100vh;
+    }
+
+    /* ── Right column (scrollable) ── */
+    .rightcol {
+      width: var(--right);
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 2rem 1.6rem;
+      border-left: 1px solid var(--line);
+      overflow-y: scroll;
+      background: var(--bg);
+    }
+    .rightcol-label {
+      font-size: .58rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+    .rightcol-section { margin-bottom: 2rem; }
+    .rightcol-section + .rightcol-section {
+      border-top: 1px solid var(--line);
+      padding-top: 1.5rem;
+    }
+    .rightcol h3 {
+      font-size: .6rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .8rem;
+      font-weight: 300;
+    }
+    .rightcol ul { list-style: none; }
+    .rightcol ul li {
+      font-size: .65rem;
+      line-height: 1.75;
+      padding: .3rem 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+    }
+    .rightcol ul li:last-child { border-bottom: none; }
+    .rightcol ul li a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+    .rightcol-note {
+      font-size: .65rem;
+      color: var(--muted);
+      line-height: 1.85;
+    }
+    .rightcol-note + .rightcol-note { margin-top: .6rem; }
+
+    /* ── Sections ── */
+    .section {
+      border-bottom: 1px solid var(--line);
+      padding: 3rem 3.5rem;
+    }
+    .section-label {
+      font-size: .6rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── Profil ── */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .profile-text p + p { margin-top: 1rem; }
+    .profile-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      filter: grayscale(15%);
+    }
+
+    /* ── Projets ── */
+    .project-entry { border-top: 1px solid var(--line); padding: 2.8rem 0; }
+    .project-entry:first-child { border-top: none; }
+    .project-header { display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: .4rem; }
+    .project-num {
+      font-size: .6rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      flex-shrink: 0;
+      padding-top: .5rem;
+    }
+    .project-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4.5vw, 3.8rem);
+      font-weight: 200;
+      font-style: italic;
+      font-variation-settings: "opsz" 72;
+      line-height: 1.05;
+      letter-spacing: -.01em;
+    }
+    .project-meta {
+      font-size: .63rem;
+      color: var(--muted);
+      margin-bottom: 1.8rem;
+      padding-left: 2.5rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .tag {
+      font-size: .56rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      border: 1px solid currentColor;
+      padding: .08rem .4rem;
+    }
+    .tag-a { color: #A0522D; }
+    .tag-s { color: #3A6EA5; }
+    .tag-h { color: #5A8055; }
+    .project-body { padding-left: 2.5rem; }
+    .project-body p { line-height: 1.9; max-width: 66ch; }
+    .project-body p + p { margin-top: .9rem; }
+    sup.cit { font-size: .54rem; color: var(--muted); }
+
+    .project-media { margin-bottom: 1.6rem; }
+    .project-media img { width: 100%; display: block; }
+    .project-media.half { max-width: 55%; }
+    .media-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .6rem;
+      margin-bottom: 1.6rem;
+    }
+    .media-grid-2 img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+
+    .caption {
+      font-size: .6rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-top: .5rem;
+      padding-top: .4rem;
+      border-top: 1px solid var(--line);
+      margin-bottom: 1.4rem;
+    }
+    blockquote {
+      margin: 1.5rem 0;
+      padding-left: 1.2rem;
+      border-left: 1px solid var(--ink);
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 200;
+      font-variation-settings: "opsz" 40;
+      font-size: 1rem;
+      line-height: 1.6;
+      max-width: 52ch;
+    }
+    blockquote cite {
+      display: block;
+      margin-top: .5rem;
+      font-family: var(--mono);
+      font-size: .6rem;
+      font-style: normal;
+      color: var(--muted);
+    }
+    .audio-block {
+      border: 1px solid var(--line);
+      padding: .9rem 1.1rem;
+      margin: 1.5rem 0;
+      background: rgba(255,255,255,.5);
+    }
+    .audio-label {
+      font-size: .6rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .6rem;
+    }
+    audio { width: 100%; }
+
+    .project-refs { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+    .project-refs h4 {
+      font-size: .58rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .8rem;
+      font-weight: 300;
+    }
+    .ref-list { list-style: none; }
+    .ref-list li {
+      font-size: .62rem;
+      color: var(--muted);
+      line-height: 1.7;
+      padding: .2rem 0;
+      display: flex;
+      gap: .8rem;
+    }
+    .ref-num { color: var(--ink); min-width: 1.2rem; flex-shrink: 0; }
+    .ref-list a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+
+    /* ── CV ── */
+    .cv-grid { display: grid; grid-template-columns: 130px 1fr; }
+    .cv-category {
+      font-size: .6rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 1.6rem 1.5rem 1.6rem 0;
+      border-top: 1px solid var(--line);
+    }
+    .cv-items { border-top: 1px solid var(--line); padding: 1.6rem 0; }
+    .cv-item { display: flex; gap: 1.5rem; padding: .3rem 0; align-items: baseline; }
+    .cv-year { font-size: .6rem; color: var(--muted); flex-shrink: 0; width: 3.5rem; }
+    .cv-desc { font-size: .78rem; line-height: 1.7; }
+    .cv-desc em { font-style: italic; }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 2rem 3.5rem;
+      font-size: .58rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 900px) {
+      .rightcol { display: none; }
+    }
+    @media (max-width: 600px) {
+      body { flex-direction: column; height: auto; }
+      .sidebar { position: relative; height: auto; width: 100%; flex-direction: row; justify-content: space-between; padding: 1rem 1.5rem; border-right: none; border-bottom: 1px solid var(--line); }
+      .sidebar-bottom { display: none; }
+      .sidebar nav { flex-direction: row; gap: 1.2rem; }
+      .main { height: auto; overflow-y: visible; }
+      .section { padding: 2rem 1.5rem; }
+      .profile-grid { grid-template-columns: 1fr; }
+      .project-media.half { max-width: 100%; }
+      .media-grid-2 { grid-template-columns: 1fr; }
+      .cv-grid { grid-template-columns: 70px 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LEFT SIDEBAR -->
+<aside class="sidebar">
+  <div>
+    <a href="#" class="site-name">Weak Signals</a>
+    <p style="font-size:.62rem;color:var(--muted);margin-top:.2rem;margin-bottom:2.5rem;line-height:1.6;">About the collapse of bird populations...</p>
+    <nav>
+      <a href="#recherches">Research</a>
+      <a href="#cv">Conversations</a>
+      <a href="#visits">Visits</a>
+      <a href="#sketches">Sketches</a>
+    </nav>
+  </div>
+  <div class="sidebar-bottom">
+
+    2026
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- PROFIL -->
+  <section class="section" id="recherches">
+    <p class="section-label">Research</p>
+    <div id="articles-container">
+      <p style="color:var(--muted);font-size:.7rem;">Loading...</p>
+    </div>
+  </section>
+
+
+
+
+
+  <footer class="footer">
+    <span>© 2026 Weak Signals</span>
+    <span><a href="https://beatricelartigue.com/">beatricelartigue.com</a></span>
+  </footer>
+
+</div><!-- /main -->
+
+<!-- RIGHT COLUMN -->
+<aside class="rightcol">
+  <div class="rightcol-section">
+    <h3>About</h3>
+    <ul id="rightcol-projects"></ul>
+    <p class="rightcol-note">Hi! My name is Béatrice Lartigue.<br>Since 2008, I work as a visual artist and educator — as a co-founder of Lab212 Collective.<br>I'm currently working on a project exploring the collapse of bird populations called <em>"Whistle Blowers"</em>.<br>In April 2026, I'll have the chance to take part in the Villa Albertine residency research programme in Boston (USA).<br>This research journal is a record of my various thoughts, research and encounters throughout this project.</p>
+    <p class="rightcol-note" style="margin-top:.6rem;"><a href="https://beatricelartigue.com/" target="_blank" style="text-decoration:underline;text-underline-offset:2px;">beatricelartigue.com</a><br><a href="https://lab212.org" target="_blank" style="text-decoration:underline;text-underline-offset:2px;">lab212.org</a></p>
+  </div>
+
+  <div class="rightcol-section">
+    <h3>Collaborations</h3>
+    <ul>
+      <li>Vincent Lostanlen<br><span style="font-size:.58rem;color:var(--muted);">Researcher at CNRS affiliated with LS2N Laboratory</span></li>
+      <li>Chapelier Fou<br><span style="font-size:.58rem;color:var(--muted);">Musician</span></li>
+    </ul>
+  </div>
+
+  <div class="rightcol-section">
+    <h3>Partners</h3>
+    <ul>
+      <li><a href="https://villa-albertine.org/" target="_blank">Villa Albertine</a></li>
+      <li><a href="https://stereolux.org/" target="_blank">Stereolux</a></li>
+      <li><a href="https://quaidessavoirs.toulouse-metropole.fr/" target="_blank">Quai des Savoirs</a></li>
+      <li><a href="https://www.bostonbirdingfestival.org/" target="_blank">Boston Birding Festival</a></li>
+      <li><a href="https://www.media.mit.edu/groups/future-sketches/overview/" target="_blank">MIT Media Lab - Future Sketches</a></li>
+      <li><a href="https://www.ls2n.fr/" target="_blank">LS2N Laboratory</a></li>
+      <li><a href="https://camd.northeastern.edu/" target="_blank">CAMD Northeastern University</a></li>
+      <li><a href="https://www.gobelins.fr/" target="_blank">Gobelins</a></li>
+    </ul>
+  </div>
+
+  <div class="rightcol-section">
+    <p class="rightcol-note">Février 2026</p>
+  </div>
+</aside>
+
+</body>
+
+<script>
+(function() {
+  var articles = [{"title": "Language of Birds", "labels": [{"text": "Documentary", "type": "h"}], "image": {"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjgwMCI+PHJlY3Qgd2lkdGg9IjE0MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPlJlbGV2w6kgcGhvdG9ncmFwaGlxdWUgbsKwMTQg4oCUIEZvbnRhaW5lYmxlYXUgMjAyNDwvdGV4dD48L3N2Zz4=", "caption": "<em>Language of Birds</em>, Erik Bullot, 2022"}, "paragraphs": ["Language of Birds explores the virtues of translation and the desire for communication between humans and birds. Narrated by a storyteller from the future, after the sixth extinction, the film observes attempts to establish a possible exchange.", "Field surveys were conducted between March and October 2024. Each session combines a direct-contact recording (piezoelectric microphone) with an ink botanical drawing protocol."]}, {"title": "Manières d'être vivant", "labels": [{"text": "Book", "type": "h"}, {"text": "Podcast", "type": "h"}], "audio": {"src": "audio/enregistrement-01.mp3", "label": "FRANCE INTER 2020"}, "caption": "<em>Manières d'être vivant</em>, Baptiste Morizot, La Terre au carré, 2020"}, {"title": "Manières d'être vivant", "labels": [{"text": "Book", "type": "h"}, {"text": "Podcast", "type": "h"}], "image": {"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjgwMCI+PHJlY3Qgd2lkdGg9IjE0MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPlJlbGV2w6kgcGhvdG9ncmFwaGlxdWUgbsKwMTQg4oCUIEZvbnRhaW5lYmxlYXUgMjAyNDwvdGV4dD48L3N2Zz4=", "caption": "<em>Language of Birds</em>, Erik Bullot, 2022"}, "paragraphs": ["Language of Birds explores the virtues of translation and the desire for communication between humans and birds. Narrated by a storyteller from the future, after the sixth extinction, the film observes attempts to establish a possible exchange.<sup class=\"cit\">[1]</sup>", "Field surveys were conducted between March and October 2024. Each session combines a direct-contact recording (piezoelectric microphone) with an ink botanical drawing protocol."], "blockquote": {"text": "« Le bruissement, c'est le bruit de ce qui fonctionne bien. »", "cite": "— Roland Barthes, <em>Le bruissement de la langue</em>, 1984"}, "audio": {"src": "audio/enregistrement-01.mp3", "label": "FRANCE INTER 2020", "caption": "Duration: 3'24 — Direct bark contact recording. Wind: 12 km/h."}, "mediaGrid": [{"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI0Q4RDRDQyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjEzIiBmaWxsPSIjODg4MDc3Ij5EZXNzaW4gbsKwMzwvdGV4dD48L3N2Zz4=", "caption": "Drawing n°3 — Indian ink, Arches paper."}, {"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI0Q4RDRDQyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjEzIiBmaWxsPSIjODg4MDc3Ij5EZXNzaW4gbsKwNzwvdGV4dD48L3N2Zz4=", "caption": "Drawing n°7 — vein detail, ×4."}], "refs": [{"num": "[1]", "text": "Gagliano, M., Mancuso, S. & Robert, D. (2012). Towards understanding plant bioacoustics. <em>Trends in Plant Science</em>, 17(6), 323–325. <a href=\"https://doi.org/10.1016/j.tplants.2012.03.002\" target=\"_blank\">doi:10.1016/j.tplants.2012.03.002</a>"}, {"num": "[2]", "text": "Barthes, R. (1984). <em>Le bruissement de la langue : essais critiques IV</em>. Seuil."}]}, {"title": "Latency and Sound Perception", "labels": [{"text": "Science", "type": "s"}], "image": {"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjY3NSI+PHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNjc1IiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPlPDqW1pbmFpcmUgQXJ0cyBldCBDb2duaXRpb24g4oCUIFBhcmlzLCBqdWluIDIwMjQ8L3RleHQ+PC9zdmc+", "caption": "Presentation at the <em>Arts and Cognition</em> seminar, Paris, June 2024. 18'.", "ratio": "16/9"}, "paragraphs": ["This series of experiments explores the perceptual boundary between actual and anticipated sound. In collaboration with Laboratory X, 40 participants were subjected to biased listening protocols.<sup class=\"cit\">[3]</sup>", "Results suggest the body anticipates the sound source approximately 80 ms before conscious perception, consistent with Noë's work on embodied perception.<sup class=\"cit\">[4]</sup>"], "refs": [{"num": "[3]", "text": "Zatorre, R. J. & Salimpoor, V. N. (2013). From perception to pleasure. <em>PNAS</em>, 110(2), 10430–10437."}, {"num": "[4]", "text": "Noë, A. (2004). <em>Action in Perception</em>. MIT Press."}]}, {"title": "Chromogenic Sequences", "labels": [{"text": "Arts", "type": "a"}], "image": {"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MDAiIGhlaWdodD0iMTEwMCI+PHJlY3Qgd2lkdGg9IjkwMCIgaGVpZ2h0PSIxMTAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPlPDqXF1ZW5jZSBuwrAwODwvdGV4dD48L3N2Zz4=", "caption": "<em>Sequence n°08</em>, 2024. Chromogenic print, 80 × 60 cm.", "half": true}, "paragraphs": ["A series of twenty photographs exploring the relationship between light spectrum and emotional state. Exhibition presented at Gallery Y, Paris, March–April 2024."]}];
+
+  function renderArticles(articles) {
+    var container = document.getElementById('articles-container');
+    var rightList = document.getElementById('rightcol-projects');
+
+    container.innerHTML = articles.map(function(a, i) {
+      var num = String(i + 1).padStart(2, '0');
+
+      var labels = (a.labels || []).map(function(l) {
+        return '<span class="tag tag-' + l.type + '">' + l.text + '</span>';
+      }).join(' ');
+
+      var body = '';
+
+      if (a.image) {
+        var style = a.image.ratio ? 'style="aspect-ratio:' + a.image.ratio + ';object-fit:cover;"' : '';
+        var cls = 'project-media' + (a.image.half ? ' half' : '');
+        body += '<figure class="' + cls + '"><img src="' + a.image.src + '" alt="" ' + style + '/><p class="caption">' + a.image.caption + '</p></figure>';
+      }
+
+      if (a.paragraphs) {
+        body += a.paragraphs.map(function(p) { return '<p>' + p + '</p>'; }).join('');
+      }
+
+      if (a.blockquote) {
+        body += '<blockquote>' + a.blockquote.text + '<cite>' + a.blockquote.cite + '</cite></blockquote>';
+      }
+
+      if (a.audio) {
+        body += '<div class="audio-block"><p class="audio-label">' + a.audio.label + '</p><audio controls><source src="' + a.audio.src + '" type="audio/mpeg"/></audio>' + (a.audio.caption ? '<p class="caption">' + a.audio.caption + '</p>' : '') + '</div>';
+      }
+
+      if (a.caption) {
+        body += '<p class="caption">' + a.caption + '</p>';
+      }
+
+      if (a.mediaGrid) {
+        var imgs = a.mediaGrid.map(function(m) {
+          return '<figure><img src="' + m.src + '" alt=""/><p class="caption">' + m.caption + '</p></figure>';
+        }).join('');
+        body += '<div class="media-grid-2">' + imgs + '</div>';
+      }
+
+      if (a.refs && a.refs.length) {
+        var refItems = a.refs.map(function(r) {
+          return '<li><span class="ref-num">' + r.num + '</span><span>' + r.text + '</span></li>';
+        }).join('');
+        body += '<div class="project-refs"><h4>References</h4><ul class="ref-list">' + refItems + '</ul></div>';
+      }
+
+      return '<article class="project-entry"><div class="project-header"><span class="project-num">' + num + '</span><h2 class="project-title">' + a.title + '</h2></div><div class="project-meta">' + labels + '</div><div class="project-body">' + body + '</div></article>';
+    }).join('');
+
+    if (rightList) {
+      rightList.innerHTML = articles.map(function(a, i) {
+        var num = String(i + 1).padStart(2, '0');
+        return '<li><a href="#recherches"><strong>' + num + '</strong> — ' + a.title + '</a></li>';
+      }).join('');
+    }
+  }
+
+  renderArticles(articles);
+})();
+</script>
+
+</html>
