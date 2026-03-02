@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weak Signals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,200;1,9..144,300&family=IBM+Plex+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    :root {
+      --bg:       #FFFFFF;
+      --ink:      #1C1A16;
+      --muted:    #888077;
+      --line:     rgba(0,0,0,.12);
+      --serif:    'Fraunces', serif;
+      --mono:     'IBM Plex Mono', monospace;
+      --left:     220px;
+      --right:    400px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 300;
+      line-height: 1.9;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      align-items: stretch;
+      height: 100%;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    a:hover { opacity: .5; }
+
+    /* ── Left sidebar ── */
+    .sidebar {
+      width: var(--left);
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 2rem 1.6rem;
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: var(--bg);
+      overflow-y: auto;
+    }
+    .site-name {
+      font-size: .72rem;
+      font-weight: 400;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0;
+    }
+    .sidebar nav { display: flex; flex-direction: column; gap: .05rem; }
+    .sidebar nav a {
+      font-size: .66rem;
+      letter-spacing: .04em;
+      color: var(--muted);
+      padding: .22rem 0;
+      transition: color .15s;
+    }
+    .sidebar nav a:hover,
+    .sidebar nav a.active { color: var(--ink); opacity: 1; font-weight: 400; }
+    .sidebar-bottom {
+      font-size: .58rem;
+      color: var(--muted);
+      line-height: 2;
+    }
+    .sidebar-bottom a { color: var(--muted); }
+
+    /* ── Main (scrollable) ── */
+    .main {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      height: 100vh;
+    }
+
+    /* ── Right column (scrollable) ── */
+    .rightcol {
+      width: var(--right);
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 2rem 1.6rem;
+      border-left: 1px solid var(--line);
+      overflow-y: scroll;
+      background: var(--bg);
+    }
+    .rightcol-label {
+      font-size: .58rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+    .rightcol-section { margin-bottom: 2rem; }
+    .rightcol-section + .rightcol-section {
+      border-top: 1px solid var(--line);
+      padding-top: 1.5rem;
+    }
+    .rightcol h3 {
+      font-size: .6rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .8rem;
+      font-weight: 300;
+    }
+    .rightcol ul { list-style: none; }
+    .rightcol ul li {
+      font-size: .65rem;
+      line-height: 1.75;
+      padding: .3rem 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+    }
+    .rightcol ul li:last-child { border-bottom: none; }
+    .rightcol ul li a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+    .rightcol-note {
+      font-size: .65rem;
+      color: var(--muted);
+      line-height: 1.85;
+    }
+    .rightcol-note + .rightcol-note { margin-top: .6rem; }
+
+    /* ── Sections ── */
+    .section {
+      border-bottom: 1px solid var(--line);
+      padding: 3rem 3.5rem;
+      display: flow-root;
+    }
+    .section-label {
+      font-size: .6rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── Profil ── */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .profile-text p + p { margin-top: 1rem; }
+    .profile-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      filter: grayscale(15%);
+    }
+
+    /* ── Projets ── */
+    .project-entry { border-top: 1px solid var(--line); padding: 2.8rem 0; }
+    #articles-container .project-entry:last-child { padding-bottom: 0; }
+    .project-entry:first-child { border-top: none; }
+    .project-header { display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: .4rem; }
+    .project-num {
+      font-size: .6rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      flex-shrink: 0;
+      padding-top: .5rem;
+    }
+    .project-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4.5vw, 3.8rem);
+      font-weight: 200;
+      font-style: italic;
+      font-variation-settings: "opsz" 72;
+      line-height: 1.05;
+      letter-spacing: -.01em;
+    }
+    .project-meta {
+      font-size: .63rem;
+      color: var(--muted);
+      margin-bottom: 1.8rem;
+      padding-left: 2.5rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .tag {
+      font-size: .56rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      border: 1px solid currentColor;
+      padding: .08rem .4rem;
+    }
+    .tag-a { color: #A0522D; }
+    .tag-s { color: #3A6EA5; }
+    .tag-h { color: #5A8055; }
+    .project-body { padding-left: 2.5rem; }
+    .project-body p { line-height: 1.9; }
+    .project-body p + p { margin-top: .9rem; }
+    sup.cit { font-size: .54rem; color: var(--muted); }
+
+    .project-media { margin-bottom: 1.6rem; }
+    .project-media img { width: 100%; display: block; }
+    .project-media.half { max-width: 55%; }
+    .media-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .6rem;
+      margin-bottom: 1.6rem;
+    }
+    .media-grid-2 img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+
+    .caption {
+      font-size: .6rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-top: .5rem;
+      padding-top: .4rem;
+      border-top: 1px solid var(--line);
+      margin-bottom: 1.4rem;
+    }
+    blockquote {
+      margin: 1.5rem 0;
+      padding-left: 1.2rem;
+      border-left: 1px solid var(--ink);
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 200;
+      font-variation-settings: "opsz" 40;
+      font-size: 1rem;
+      line-height: 1.6;
+      max-width: 52ch;
+    }
+    blockquote cite {
+      display: block;
+      margin-top: .5rem;
+      font-family: var(--mono);
+      font-size: .6rem;
+      font-style: normal;
+      color: var(--muted);
+    }
+    .audio-block {
+      border: 1px solid var(--line);
+      padding: .9rem 1.1rem;
+      margin: 1.5rem 0;
+      background: rgba(255,255,255,.5);
+    }
+    .audio-label {
+      font-size: .6rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .6rem;
+    }
+    audio { width: 100%; }
+
+    .project-refs { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+    .project-refs h4 {
+      font-size: .58rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .8rem;
+      font-weight: 300;
+    }
+    .ref-list { list-style: none; }
+    .ref-list li {
+      font-size: .62rem;
+      color: var(--muted);
+      line-height: 1.7;
+      padding: .2rem 0;
+      display: flex;
+      gap: .8rem;
+    }
+    .ref-num { color: var(--ink); min-width: 1.2rem; flex-shrink: 0; }
+    .ref-list a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+
+    /* ── CV ── */
+    .cv-grid { display: grid; grid-template-columns: 130px 1fr; }
+    .cv-category {
+      font-size: .6rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 1.6rem 1.5rem 1.6rem 0;
+      border-top: 1px solid var(--line);
+    }
+    .cv-items { border-top: 1px solid var(--line); padding: 1.6rem 0; }
+    .cv-item { display: flex; gap: 1.5rem; padding: .3rem 0; align-items: baseline; }
+    .cv-year { font-size: .6rem; color: var(--muted); flex-shrink: 0; width: 3.5rem; }
+    .cv-desc { font-size: .78rem; line-height: 1.7; }
+    .cv-desc em { font-style: italic; }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 2rem 3.5rem;
+      font-size: .58rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 900px) {
+      .rightcol { display: none; }
+    }
+    @media (max-width: 600px) {
+      body { flex-direction: column; height: auto; }
+      .sidebar { position: relative; height: auto; width: 100%; flex-direction: row; justify-content: space-between; padding: 1rem 1.5rem; border-right: none; border-bottom: 1px solid var(--line); }
+      .sidebar-bottom { display: none; }
+      .sidebar nav { flex-direction: row; gap: 1.2rem; }
+      .main { height: auto; overflow-y: visible; }
+      .section { padding: 2rem 1.5rem; }
+      .profile-grid { grid-template-columns: 1fr; }
+      .project-media.half { max-width: 100%; }
+      .media-grid-2 { grid-template-columns: 1fr; }
+      .cv-grid { grid-template-columns: 70px 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LEFT SIDEBAR -->
+<aside class="sidebar">
+  <div>
+    <a href="#" class="site-name">Weak Signals</a>
+    <p style="font-size:.62rem;color:var(--muted);margin-top:.2rem;margin-bottom:2.5rem;line-height:1.6;">About the collapse of bird populations...</p>
+    <nav>
+      <a href="#research" class="active">Research</a>
+      <a href="#conversations">Conversations</a>
+      <a href="#visits">Visits</a>
+      <a href="#sketches">Sketches</a>
+    </nav>
+  </div>
+  <div class="sidebar-bottom">
+
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- RESEARCH -->
+  <section class="section" id="research" style="padding-bottom:3rem;">
+    <p class="section-label">Research</p>
+    <div id="articles-container">
+      <p style="color:var(--muted);font-size:.7rem;">Loading...</p>
+    </div>
+  </section>
+  <div style="border-bottom:1px solid rgba(0,0,0,.12);"></div>
+
+  <!-- CONVERSATIONS -->
+  <section class="section" id="conversations">
+    <p class="section-label">Conversations</p>
+
+    <article class="project-entry">
+      <div class="project-header">
+        <span class="project-num">01</span>
+        <h2 class="project-title">Vincent Lostanlen</h2>
+      </div>
+      <div class="project-meta">
+        <span class="tag tag-s">Interview</span>
+      </div>
+      <div class="project-body">
+        <p>Researcher at CNRS / LS2N Laboratory, Nantes. We spoke about machine listening, bird song classification and the limits of what algorithms can hear.</p>
+        <p>The conversation started from a simple question: can a neural network trained on spectrograms ever capture what a bird is <em>saying</em>? His answer was both technical and philosophical.</p>
+        <div class="audio-block">
+          <p class="audio-label">Conversation · Nantes, janvier 2026</p>
+          <audio controls><source src="audio/lostanlen-01.mp3" type="audio/mpeg" /></audio>
+        </div>
+        <p class="caption">Duration: 42' — Recorded via Zoom. Lightly edited.</p>
+      </div>
+    </article>
+
+    <article class="project-entry">
+      <div class="project-header">
+        <span class="project-num">02</span>
+        <h2 class="project-title">Chapelier Fou</h2>
+      </div>
+      <div class="project-meta">
+        <span class="tag tag-h">Interview</span>
+      </div>
+      <div class="project-body">
+        <figure class="project-media">
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjcwMCI+PHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNzAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPkNoYXBlbGllciBGb3Ug4oCUIFN0dWRpbywgUGFyaXMgMjAyNjwvdGV4dD48L3N2Zz4=" alt="Chapelier Fou studio" />
+          <p class="caption">Studio session, Paris, February 2026.</p>
+        </figure>
+        <p>Musician and sound artist. We discussed field recording, the ethics of capturing animal sounds, and his ongoing project composing with bird calls as raw material.</p>
+        <blockquote>
+          « When I record a bird, I'm not capturing a sound — I'm interrupting a conversation I don't understand. »
+          <cite>— Chapelier Fou, February 2026</cite>
+        </blockquote>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- VISITS -->
+  <section class="section" id="visits">
+    <p class="section-label">Visits</p>
+
+    <article class="project-entry">
+      <div class="project-header">
+        <span class="project-num">01</span>
+        <h2 class="project-title">Boston Birding Festival</h2>
+      </div>
+      <div class="project-meta">
+        <span class="tag tag-h">Field visit</span>
+      </div>
+      <div class="project-body">
+        <figure class="project-media">
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjgwMCI+PHJlY3Qgd2lkdGg9IjE0MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPkJvc3RvbiBCaXJkaW5nIEZlc3RpdmFsIOKAlCBBcHJpbCAyMDI2PC90ZXh0Pjwvc3ZnPg==" alt="Boston Birding Festival" />
+          <p class="caption">Boston Birding Festival, April 2026. Early morning session, Mount Auburn Cemetery.</p>
+        </figure>
+        <p>Three days at the Boston Birding Festival. 140 species recorded, including several rarities. Conversations with amateur and professional ornithologists about the long-term data they are collecting.</p>
+        <p>The festival is also a ritual — the same people, same paths, same skies, year after year. A living archive of disappearance.</p>
+      </div>
+    </article>
+
+    <article class="project-entry">
+      <div class="project-header">
+        <span class="project-num">02</span>
+        <h2 class="project-title">MIT Media Lab —<br>Future Sketches</h2>
+      </div>
+      <div class="project-meta">
+        <span class="tag tag-s">Lab visit</span>
+      </div>
+      <div class="project-body">
+        <p>Visited the Future Sketches group to discuss data visualisation approaches for long-term ecological datasets. How do you represent a 40-year decline in a way that is both scientifically rigorous and emotionally legible?</p>
+        <div class="media-grid-2">
+          <figure>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI0Q4RDRDQyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjEzIiBmaWxsPSIjODg4MDc3Ij5NSVQgTWVkaWEgTGFiIOKAlCBza2V0Y2ggc2Vzc2lvbjwvdGV4dD48L3N2Zz4=" alt="Sketch session" />
+            <p class="caption">Sketch session, MIT Media Lab, March 2026.</p>
+          </figure>
+          <figure>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI0Q4RDRDQyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjEzIiBmaWxsPSIjODg4MDc3Ij5EYXRhIHZpc3VhbGlzYXRpb24gcHJvdG90eXBlPC90ZXh0Pjwvc3ZnPg==" alt="Data visualisation" />
+            <p class="caption">Early data visualisation prototype.</p>
+          </figure>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- SKETCHES -->
+  <section class="section" id="sketches" style="border-bottom:1px solid var(--line);">
+    <p class="section-label">Sketches</p>
+
+    <article class="project-entry">
+      <div class="project-header">
+        <span class="project-num">01</span>
+        <h2 class="project-title">Spectrogram drawings</h2>
+      </div>
+      <div class="project-meta">
+        <span class="tag tag-a">Drawing</span>
+      </div>
+      <div class="project-body">
+        <figure class="project-media">
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjgwMCI+PHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iODAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPlNwZWN0cm9ncmFtIGRyYXdpbmcgbsKwMDMg4oCUIENvbW1vbiBDaGFmZmluY2g8L3RleHQ+PC9zdmc+" alt="Spectrogram drawing" />
+          <p class="caption">Spectrogram drawing n°03 — <em>Common Chaffinch</em>, ink on paper, 40 × 30 cm, 2026.</p>
+        </figure>
+        <p>A series of drawings made from bird song spectrograms. Each drawing translates a sound visualisation into a hand-drawn mark — slowing down the reading, making the shape of a call tangible.</p>
+      </div>
+    </article>
+
+    <article class="project-entry">
+      <div class="project-header">
+        <span class="project-num">02</span>
+        <h2 class="project-title">Field notebooks</h2>
+      </div>
+      <div class="project-meta">
+        <span class="tag tag-a">Notes</span>
+      </div>
+      <div class="project-body">
+        <div class="media-grid-2">
+          <figure>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMTAwMCI+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSIxMDAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPkZpZWxkIG5vdGVib29rIOKAlCBCb3N0b24sIEFwcmlsIDIwMjY8L3RleHQ+PC9zdmc+" alt="Field notebook" />
+            <p class="caption">Field notebook, Boston, April 2026.</p>
+          </figure>
+          <figure>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iMTAwMCI+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSIxMDAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPkZpZWxkIG5vdGVib29rIOKAlCBOYW50ZXMsIEphbnVhcnkgMjAyNjwvdGV4dD48L3N2Zz4=" alt="Field notebook" />
+            <p class="caption">Field notebook, Nantes, January 2026.</p>
+          </figure>
+        </div>
+        <p>Notes, sketches and observations accumulated during field visits and conversations. A working space between thinking and seeing.</p>
+      </div>
+    </article>
+
+  </section>
+
+  <footer class="footer">
+    <span>© 2026 Weak Signals</span>
+    <span><a href="https://beatricelartigue.com/">beatricelartigue.com</a></span>
+  </footer>
+
+</div><!-- /main -->
+
+<!-- RIGHT COLUMN -->
+<aside class="rightcol">
+  <div class="rightcol-section">
+    <h3>About</h3>
+    <p class="rightcol-note">Hi! My name is Béatrice Lartigue.<br>Since 2008, I work as a visual artist and educator — as a co-founder of Lab212 Collective.<br>I'm currently working on a project exploring the collapse of bird populations called <em>"Whistle Blowers"</em>.<br>In April 2026, I'll have the chance to take part in the Villa Albertine residency research programme in Boston (USA).<br>This research journal is a record of my various thoughts, research and encounters throughout this project.</p>
+    <p class="rightcol-note" style="margin-top:.6rem;"><a href="https://beatricelartigue.com/" target="_blank" style="text-decoration:underline;text-underline-offset:2px;">beatricelartigue.com</a><br><a href="https://lab212.org" target="_blank" style="text-decoration:underline;text-underline-offset:2px;">lab212.org</a></p>
+  </div>
+
+  <div class="rightcol-section">
+    <h3>Collaborations</h3>
+    <ul>
+      <li>Vincent Lostanlen<br><span style="font-size:.58rem;color:var(--muted);">Researcher at CNRS affiliated with LS2N Laboratory</span><br><span style="font-size:.58rem;color:var(--muted);">Vincent Lostanlen is a researcher specialising in machine learning, audio signal processing, and artificial intelligence for temporal data.</span></li>
+      <li>Chapelier Fou<br><span style="font-size:.58rem;color:var(--muted);">Musician</span><br><span style="font-size:.58rem;color:var(--muted);">Chapelier Fou is a musician, composer and multi-instrumentalist. His work explores electronic music and acoustic instruments.</span></li>
+    </ul>
+  </div>
+
+  <div class="rightcol-section">
+    <h3>Partners</h3>
+    <ul>
+      <li><a href="https://villa-albertine.org/" target="_blank">Villa Albertine</a></li>
+      <li><a href="https://stereolux.org/" target="_blank">Stereolux</a></li>
+      <li><a href="https://quaidessavoirs.toulouse-metropole.fr/" target="_blank">Quai des Savoirs</a></li>
+      <li><a href="https://www.bostonbirdingfestival.org/" target="_blank">Boston Birding Festival</a></li>
+      <li><a href="https://www.media.mit.edu/groups/future-sketches/overview/" target="_blank">MIT Media Lab - Future Sketches</a></li>
+      <li><a href="https://www.ls2n.fr/" target="_blank">LS2N Laboratory</a></li>
+      <li><a href="https://camd.northeastern.edu/" target="_blank">CAMD Northeastern University</a></li>
+      <li><a href="https://www.gobelins.fr/" target="_blank">Gobelins</a></li>
+    </ul>
+  </div>
+</aside>
+
+
+<script>
+(function() {
+  var sections = document.querySelectorAll('section[id]');
+  var navLinks = document.querySelectorAll('.sidebar nav a');
+  window.addEventListener('scroll', function() {
+    var scrollY = document.querySelector('.main').scrollTop;
+    sections.forEach(function(s) {
+      if (scrollY >= s.offsetTop - 60) {
+        navLinks.forEach(function(a) { a.classList.remove('active'); });
+        var active = document.querySelector('.sidebar nav a[href="#' + s.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { passive: true });
+  document.querySelector('.main').addEventListener('scroll', function() {
+    var scrollY = this.scrollTop;
+    sections.forEach(function(s) {
+      if (scrollY >= s.offsetTop - 60) {
+        navLinks.forEach(function(a) { a.classList.remove('active'); });
+        var active = document.querySelector('.sidebar nav a[href="#' + s.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { passive: true });
+})();
+</script>
+
+</body>
+
+<script>
+(function() {
+  var articles = [{"title": "Language of Birds", "labels": [{"text": "Documentary", "type": "h"}], "image": {"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjgwMCI+PHJlY3Qgd2lkdGg9IjE0MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPlJlbGV2w6kgcGhvdG9ncmFwaGlxdWUgbsKwMTQg4oCUIEZvbnRhaW5lYmxlYXUgMjAyNDwvdGV4dD48L3N2Zz4=", "caption": "<em>Language of Birds</em>, Erik Bullot, 2022"}, "paragraphs": ["Language of Birds explores the virtues of translation and the desire for communication between humans and birds. Narrated by a storyteller from the future, after the sixth extinction, the film observes attempts to establish a possible exchange."], "youtube": {"id": "xWVikFb_afE", "caption": "Presentation at the <em>Arts and Cognition</em> seminar, Paris, June 2024. 18'."}}, {"title": "Manières d'être vivant", "labels": [{"text": "Book", "type": "h"}, {"text": "Podcast", "type": "h"}], "caption": "<em>Manières d'être vivant</em>, Baptiste Morizot, La Terre au carré, 2020", "embed": {"src": "https://embed.radiofrance.fr/franceinter/diffusion/15a32541-d675-4dfa-b7da-9d3fbd202b9b", "height": "152"}, "paragraphs": ["Our modernity has distanced us from the rest of the living world, and we no longer pay attention to other species or ecosystems. Through stories of tracking, philosopher Baptiste Morizot invites us to 'get to know' all 'the inhabitants of the Earth' again."]}, {"title": "I love finding birds' nests, but what's in them troubles me", "labels": [{"text": "Article", "type": "h"}], "image": {"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjgwMCI+PHJlY3Qgd2lkdGg9IjE0MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPlJlbGV2w6kgcGhvdG9ncmFwaGlxdWUgbsKwMTQg4oCUIEZvbnRhaW5lYmxlYXUgMjAyNDwvdGV4dD48L3N2Zz4=", "caption": "<em>Language of Birds</em>, Erik Bullot, 2022"}, "mediaGrid": [{"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI0Q4RDRDQyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjEzIiBmaWxsPSIjODg4MDc3Ij5EZXNzaW4gbsKwMzwvdGV4dD48L3N2Zz4=", "caption": "Drawing n°3 — Indian ink, Arches paper."}, {"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI0Q4RDRDQyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXNpemU9IjEzIiBmaWxsPSIjODg4MDc3Ij5EZXNzaW4gbsKwNzwvdGV4dD48L3N2Zz4=", "caption": "Drawing n°7 — vein detail, ×4."}], "refs": [{"num": "[1]", "text": "Vanya Rohwer, curator, Cornell University Museum of Vertebrates, <em>The New York Times</em>, 2025."}], "paragraphsAfterGrid": ["Birds can be choosy about the materials they use to build their nest. Some line their nests with snakeskin to ward off enemies. Others fasten lichens with spider silk to the exterior for camouflage. Still others stuff feathers inside dome-shaped nests of sticks or create false entrances to dupe predators or add aromatic leaves to repel parasites and enhance the immune systems of their nestlings.", "Increasingly, and troublingly for what it says about the state of the planet, birds are also using all sorts of plastic litter and other trash to build their nests.<sup class=\"cit\">[1]</sup>"]}, {"title": "Latency and Sound Perception", "labels": [{"text": "Science", "type": "s"}], "image": {"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjY3NSI+PHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iNjc1IiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPlPDqW1pbmFpcmUgQXJ0cyBldCBDb2duaXRpb24g4oCUIFBhcmlzLCBqdWluIDIwMjQ8L3RleHQ+PC9zdmc+", "caption": "Presentation at the <em>Arts and Cognition</em> seminar, Paris, June 2024. 18'.", "ratio": "16/9"}, "paragraphs": ["This series of experiments explores the perceptual boundary between actual and anticipated sound. In collaboration with Laboratory X, 40 participants were subjected to biased listening protocols.<sup class=\"cit\">[3]</sup>", "Results suggest the body anticipates the sound source approximately 80 ms before conscious perception, consistent with Noë's work on embodied perception.<sup class=\"cit\">[4]</sup>"], "refs": [{"num": "[3]", "text": "Zatorre, R. J. & Salimpoor, V. N. (2013). From perception to pleasure. <em>PNAS</em>, 110(2), 10430–10437."}, {"num": "[4]", "text": "Noë, A. (2004). <em>Action in Perception</em>. MIT Press."}], "blockquote": {"text": "« Le bruissement, c'est le bruit de ce qui fonctionne bien. »", "cite": "— Roland Barthes, <em>Le bruissement de la langue</em>, 1984"}}, {"title": "Chromogenic Sequences", "labels": [{"text": "Arts", "type": "a"}], "image": {"src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MDAiIGhlaWdodD0iMTEwMCI+PHJlY3Qgd2lkdGg9IjkwMCIgaGVpZ2h0PSIxMTAwIiBmaWxsPSIjRDhENENDIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4ODgwNzciPlPDqXF1ZW5jZSBuwrAwODwvdGV4dD48L3N2Zz4=", "caption": "<em>Sequence n°08</em>, 2024. Chromogenic print, 80 × 60 cm.", "half": true}, "paragraphs": ["A series of twenty photographs exploring the relationship between light spectrum and emotional state. Exhibition presented at Gallery Y, Paris, March–April 2024."]}];
+
+  function renderArticles(articles) {
+    var container = document.getElementById('articles-container');
+    var rightList = document.getElementById('rightcol-projects');
+
+    container.style.paddingBottom = '0';
+    var researchHr = document.createElement('hr');
+    researchHr.style.cssText = 'border:none;border-top:1px solid rgba(0,0,0,.12);margin-top:2.8rem;';
+    container.innerHTML = articles.map(function(a, i) {
+      var num = String(i + 1).padStart(2, '0');
+
+      var labels = (a.labels || []).map(function(l) {
+        return '<span class="tag tag-' + l.type + '">' + l.text + '</span>';
+      }).join(' ');
+
+      var body = '';
+
+      if (a.youtube) {
+        body += '<figure class="project-media"><iframe src="https://www.youtube.com/embed/' + a.youtube.id + '" allowfullscreen title="' + (a.youtube.title || '') + '" style="width:100%;aspect-ratio:16/9;border:none;display:block;"></iframe>' + (a.youtube.caption ? '<p class="caption">' + a.youtube.caption + '</p>' : '') + '</figure>';
+      } else if (a.image) {
+        var style = a.image.ratio ? 'style="aspect-ratio:' + a.image.ratio + ';object-fit:cover;"' : '';
+        var cls = 'project-media' + (a.image.half ? ' half' : '');
+        body += '<figure class="' + cls + '"><img src="' + a.image.src + '" alt="" ' + style + '/><p class="caption">' + a.image.caption + '</p></figure>';
+      }
+
+      if (a.blockquote) {
+        body += '<blockquote>' + a.blockquote.text + '<cite>' + a.blockquote.cite + '</cite></blockquote>';
+      }
+
+      if (a.audio) {
+        body += '<div class="audio-block"><p class="audio-label">' + (a.audio.link ? '<a href="' + a.audio.link + '" target="_blank" style="text-decoration:underline;text-underline-offset:2px;">' + a.audio.label + '</a>' : a.audio.label) + '</p><audio controls><source src="' + a.audio.src + '" type="audio/mpeg"/></audio>' + (a.audio.caption ? '<p class="caption">' + a.audio.caption + '</p>' : '') + '</div>';
+      }
+
+      if (a.embed) {
+        body += '<iframe src="' + a.embed.src + '" width="100%" height="' + (a.embed.height || '375') + '" frameborder="0" scrolling="no" style="display:block;margin:.8rem 0 .4rem;"></iframe>';
+      }
+
+      if (a.caption) {
+        body += '<p class="caption">' + a.caption + '</p>';
+      }
+
+      if (a.paragraphs) {
+        body += a.paragraphs.map(function(p) { return '<p style="margin-top:.9rem;">' + p + '</p>'; }).join('');
+      }
+
+      if (a.mediaGrid) {
+        var imgs = a.mediaGrid.map(function(m) {
+          return '<figure><img src="' + m.src + '" alt=""/><p class="caption">' + m.caption + '</p></figure>';
+        }).join('');
+        body += '<div class="media-grid-2">' + imgs + '</div>';
+      }
+
+      if (a.paragraphsAfterGrid) {
+        body += a.paragraphsAfterGrid.map(function(p) { return '<p>' + p + '</p>'; }).join('');
+      }
+
+      if (a.refs && a.refs.length) {
+        var refItems = a.refs.map(function(r) {
+          return '<li><span class="ref-num">' + r.num + '</span><span>' + r.text + '</span></li>';
+        }).join('');
+        body += '<div class="project-refs"><h4>References</h4><ul class="ref-list">' + refItems + '</ul></div>';
+      }
+
+      return '<article class="project-entry"><div class="project-header"><span class="project-num">' + num + '</span><h2 class="project-title">' + a.title + '</h2></div><div class="project-meta">' + labels + '</div><div class="project-body">' + body + '</div></article>';
+    }).join('');
+    var _hr = document.createElement('hr');
+    _hr.style.cssText = 'border:none;border-top:1px solid rgba(0,0,0,.12);margin:3rem 0 0;';
+    container.parentNode.insertBefore(_hr, container.nextSibling);
+
+  }
+
+  renderArticles(articles);
+})();
+</script>
+
+</html>
